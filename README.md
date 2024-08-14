@@ -1,5 +1,5 @@
 # 2020 FrontendMasters Template
 
-Notes for the course "xxx" by xxx in xxx.
+Notes for the course "JavaScript: The Hard Parts, v2" by Will Sentance in Frontend Masters.
 
-Course taken on xxx.
+Course taken on August 2024.
