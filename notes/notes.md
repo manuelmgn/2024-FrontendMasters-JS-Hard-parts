@@ -133,7 +133,7 @@ incrementCounter() is running inside of outer's execution context and creating a
 function outer() {
     let counter = 0;
     function incrementCounter() { counter++; }
-    return incrementCounter();
+    return incrementCounter;
 }
 const myNewFunction = outer();
 myNewFunction();
@@ -169,7 +169,7 @@ function outer() {
     function incrementCounter() {
         counter++;
     }
-    return incrementCounter();
+    return incrementCounter;
 }
 
 const myNewFunction = outer();
@@ -182,3 +182,12 @@ anotherFunction();
 ```
 
 In this case, if we have had something like `console.log(counter)`, we would have seen 1, 2 (myNewFunction), 1 and 2 (anotherFunction), as they have different backpacks. 
+
+**Individual backpacks**. If we run 'outer' again and store the returned 'incrementCounter' function definition in 'anotherFunction', this new incrementCounter function was created in a new execution context and therefore has a brand new independent backpack.
+
+>**Closure gives our functions persistent memories and entirely new toolkit for writing professional code**.
+>- **Helper functions**: Everyday professional helper functions like ‘once’ and ‘memoize’. *Like in a winning function, which should run only once, or giving our functions persistent memories of their previous input output combinations*.
+>- **Iterators and generators**: Which use lexical scoping and closure to achieve the most contemporary patterns for handling data in JavaScript
+>- **Module pattern**: Preserve state for the life of an application without polluting the global namespace
+>- **Asynchronous JavaScript**: Callbacks and Promises rely on closure to persist state in an asynchronous environment
+
