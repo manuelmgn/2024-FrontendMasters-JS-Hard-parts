@@ -1,6 +1,13 @@
 # Notes
 
-
+- [Notes](#notes)
+  - [JavaScript Principles](#javascript-principles)
+    - [Call Stack](#call-stack)
+  - [Functions and callbacks](#functions-and-callbacks)
+    - [Arrow functions](#arrow-functions)
+  - [Closure](#closure)
+    - [Functions with memories](#functions-with-memories)
+    - [Multiple Closure Instances](#multiple-closure-instances)
 
 ## JavaScript Principles
 
@@ -10,10 +17,10 @@
 - **Execution context**: Created to run the code of a function. Has 2 parts: thread of execution and memory. *We need the thread of execution to call the function and the memory to take the data we're going to use and save new data. The first execution context is the global one, when we run our code. Then, we create new contexts by calling for functions and other pieces of code to execute, so we're creating contexts inside other contexts. We can see the relation between this and the scope*.
 
 > [!NOTE]
-> 
-> **Parameter VS Argument 🪙**. For the function `function multiplyBy2(inputNumber) {}`, been the inputNumber 3, `inputNumber` is the parameter, while 3 is the argument. The parameter is sort of the placeholder that awaits, it's gonna receive the value when the function it's being run. And that value is the argument.
- 
-> **Value**: anything that is stored.
+>
+>- **Parameter VS Argument 🪙**. For the function `function multiplyBy2(inputNumber) {}`, been the inputNumber 3, `inputNumber` is the parameter, while 3 is the argument. The parameter is sort of the placeholder that awaits, it's gonna receive the value when the function it's being run. And that value is the argument.
+>
+>- **Value**: anything that is stored.
 
 ### Call Stack
 
@@ -31,16 +38,16 @@ DRY principle: Don't Repeat Yourself
 
 In JS **functions are First Class Objects** (meaning that everything that objects have, functions have too; they're full features of objects, meaning they can be treated just like objects). So we can assign functions to variables and properties of other objects (methods), pass them as arguments into functions and also return functions as values from other functions.
 
-> [!NOTE]
-> 
-> **High Order Function**
-> 
-> The outer function that *takes in* or passes out a function.
+>[!NOTE]
 >
-> It's just a term to describe these functions - any function that does it we call that - but there's nothing different about them inherently.
+>**High Order Function**.
+>
+>The outer function that *takes in* or passes out a function.
+>
+>It's just a term to describe these functions - any function that does it we call that - but there's nothing different about them inherently.
 >
 > **Callback Function**
-> 
+>
 > The function we insert.
 
 ```js
@@ -79,9 +86,9 @@ function copyArrayAndManipulate(array, instructions) {
 const result = copyArrayAndManipulate([1,2,3], input => input*2);
 ```
 
-> Anonymous and arrow functions:
-> 
-> - Improve immediate legibility of the code
+>Anonymous and arrow functions:
+>
+>- Improve immediate legibility of the code
 
 ## Closure
 
@@ -152,7 +159,7 @@ It stored in a hidden property `[[scope]]`. However, we cannot access that prope
 
 With this example, we could say that if counter is bigger than 1, the function will return "sorry, you only can run me once".
 
-If we have had another variable next to counter, but this one is never called by other functions, it wouldn't be stored at memory, as it would be a memory leak, storing things that won't be used. 
+If we have had another variable next to counter, but this one is never called by other functions, it wouldn't be stored at memory, as it would be a memory leak, storing things that won't be used.
 
 JavaScript has a very particular scope rule, called lexical or static scoping. That is to say that where I save my function determines for the rest of that life, for the life of that function, whenever it gets run under whatever new label it gets, what data it will have access to when that function runs.
 
@@ -181,13 +188,16 @@ anotherFunction();
 anotherFunction();
 ```
 
-In this case, if we have had something like `console.log(counter)`, we would have seen 1, 2 (myNewFunction), 1 and 2 (anotherFunction), as they have different backpacks. 
+In this case, if we have had something like `console.log(counter)`, we would have seen 1, 2 (myNewFunction), 1 and 2 (anotherFunction), as they have different backpacks.
 
 **Individual backpacks**. If we run 'outer' again and store the returned 'incrementCounter' function definition in 'anotherFunction', this new incrementCounter function was created in a new execution context and therefore has a brand new independent backpack.
 
 >**Closure gives our functions persistent memories and entirely new toolkit for writing professional code**.
+>
 >- **Helper functions**: Everyday professional helper functions like ‘once’ and ‘memoize’. *Like in a winning function, which should run only once, or giving our functions persistent memories of their previous input output combinations*.
+>
 >- **Iterators and generators**: Which use lexical scoping and closure to achieve the most contemporary patterns for handling data in JavaScript
+>
 >- **Module pattern**: Preserve state for the life of an application without polluting the global namespace
+>
 >- **Asynchronous JavaScript**: Callbacks and Promises rely on closure to persist state in an asynchronous environment
-
