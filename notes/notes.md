@@ -8,6 +8,8 @@
   - [Closure](#closure)
     - [Functions with memories](#functions-with-memories)
     - [Multiple Closure Instances](#multiple-closure-instances)
+  - [Asynchronous JS](#asynchronous-js)
+    - [ES 5](#es-5)
 
 ## JavaScript Principles
 
@@ -201,3 +203,126 @@ In this case, if we have had something like `console.log(counter)`, we would hav
 >- **Module pattern**: Preserve state for the life of an application without polluting the global namespace
 >
 >- **Asynchronous JavaScript**: Callbacks and Promises rely on closure to persist state in an asynchronous environment
+
+## Asynchronous JS
+
+### ES 5
+
+- **Promises, Async & the Event Loop**
+  - **Promises** - the most signficant ES6 feature
+  - **Asynchronicity** - the feature that makes dynamic web applications possible
+  - **The event loop** - JavaScript’s triage
+  - Microtask queue, Callback queue and Web Browser features (APIs)
+- **Asynchronicity is the backbone of modern web development in JavaScript yet..**.
+  - JavaScript is:
+    - Single threaded (one command runs at a time)
+    - Synchronously executed (each line is run in order the code appears)
+  - So what if we have a task:
+    - Accessing Twitter’s server to get new tweets that takes a long time
+    - Code we want to run using those tweets
+  - Challenge: We want to wait for the tweets on Twitter (X) to be stored in tweets so that they’re there to run displayTweets on - but no code can run in the meantime.
+
+```js
+//Slow function blocks further code running
+
+const tweets = getTweets("http://twitter.com/will/1")
+
+// ⛔350ms wait while a request is sent to Twitter HQ
+displayTweets(tweets)
+
+// more code to run
+console.log("I want to runnnn!")
+```
+
+**What if we try to delay a function directly using setTimeout?** `setTimeout` is a built in function - its first argument is the function to delay followed by ms to delay by.
+
+```js
+function printHello(){
+ console.log("Hello");
+}
+setTimeout(printHello,1000);
+console.log("Me first!");
+```
+
+In what order will our console logs appear? 1º) Me First, 2º) Hello.
+
+```js
+function printHello(){
+ console.log("Hello");
+}
+setTimeout(printHello,0);
+console.log("Me first!");
+```
+
+In what order will our console logs appear? 1º) Me First, 2º) Hello.
+
+**JavaScript is not enough - We need new pieces (some of
+which aren’t JavaScript at all)**
+
+- Our core JavaScript engine has 3 main parts:
+  - Thread of execution
+  - Memory/variable environment
+  - Call stack
+- We need to add some new components:
+  - Web Browser APIs/Node background APIs
+  - Promises
+  - Event loop, Callback/Task queue and micro task queue.
+
+JS usually runs a in **web browser**, which has features such as the JS engine, dev tools and a console, sockets, network requests (JS cannot *speak* to the internet), HTML DOM, a timer ⌛ and so on. The features can be used using JS through *façade* functions, that fronts the web browser features. `setTimeOut` would be the label for the timer, and `document` would be the label to the DOM, `fetch` for the feature that makes the networks requests, `console` for the console...
+
+```js
+// 0 nanoseconds since the start of the execution
+function printHello(){ console.log("Hello"); }
+
+// 1 nanoseconds since the start of the execution
+/* JS throws that function to the browser, but nothing else, so it can go the next line.
+Now this a job for the Timer feature of the browser, so it is going to start counting until 1000 ms. */
+setTimeout(printHello,1000);
+
+// 2 nanoseconds since the beginning
+/* JS asks the browser's console to print that, and it does */
+console.log("Me first!");
+
+// 1 000 000 002 nanoseconds since the start
+/* Now the browser prints Hello on the screen */
+```
+
+```js
+function printHello(){ console.log("Hello"); }
+
+function blockFor1Sec(){ //blocks in the JavaScript thread for 1 sec, we could think of it as a for loop with a bunch of code }
+
+// 0 ms
+/* It triggers the browser to start that timer, it will be completed
+in 0 ms, BUT it will put that function in a 'Callback Queue'
+(a queue of functions) and no mater how time have passed,
+functions there wont go to the Call Stack (won't be run) until
+the global execution context has finished */
+setTimeout(printHello,0);
+
+// 1ms, this code will be executed
+blockFor1Sec()
+
+// 1001ms, this code will be executed
+console.log("Me first!");
+
+// 1002ms, 'hello' will be printed out.
+```
+
+🤯 You could have an infinite while loop of console.log, and the queue would never dequeue printHello. It would never even grab it and put it on the call stack.
+
+That seems insane, but it actually **allows us to be certain of when our code will run out of a queue**.
+
+![alt text](<img/0sms execution context.png>)
+
+*All regular code will run first until I ever touch anything from the queue, until I ever put anything out of the queue. So, how does JavaScript implement that?* → **Event Loop**: tiny JS feature that checks before every single line of code run if the call stack is empty. If there's still further global code to run, then it will not even go look at the queue. But if the call stack's empty or if it heads down to the queue, it grabs the function and it puts it on the call stack.
+
+This was asynchronous JS until ES 6.
+
+- **ES5 Web Browser APIs with callback functions**
+  - Problems
+    - Our response data is only available in the callback function - Callback hell
+    - Maybe it feels a little odd to think of passing a function into another function only for it to run much later
+  - Benefits
+    - Super explicit once you understand how it works under-the-hood
+
