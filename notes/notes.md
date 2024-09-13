@@ -1,16 +1,15 @@
 # Notes
 
-- [Notes](#notes)
-  - [JavaScript Principles](#javascript-principles)
-    - [Call Stack](#call-stack)
-  - [Functions and callbacks](#functions-and-callbacks)
-    - [Arrow functions](#arrow-functions)
-  - [Closure](#closure)
-    - [Functions with memories](#functions-with-memories)
-    - [Multiple Closure Instances](#multiple-closure-instances)
-  - [Asynchronous JS](#asynchronous-js)
-    - [ES 5](#es-5)
-    - [ES 6 - Promises](#es-6---promises)
+- [JavaScript Principles](#javascript-principles)
+  - [Call Stack](#call-stack)
+- [Functions and callbacks](#functions-and-callbacks)
+  - [Arrow functions](#arrow-functions)
+- [Closure](#closure)
+  - [Functions with memories](#functions-with-memories)
+  - [Multiple Closure Instances](#multiple-closure-instances)
+- [Asynchronous JS](#asynchronous-js)
+  - [ES 5](#es-5)
+  - [ES 6 - Promises](#es-6---promises)
 
 ## JavaScript Principles
 
@@ -356,4 +355,3 @@ console.log('Me first!')
 -   How will we know that request is completed? Through the method **`then`**. The function we put in `then` will be auto-run by JS and will be the value of `on fulfilled`.
 -   Then the execution context goes to `console.log...`. And will be printed 'Me first' in the console.
 -   Then Twitter will send us data back, let's say at 270 ms. The data is just 'hi'. 'hi' will be store in the `value` property of `futureData` and this is going to trigger `on fulfilled` property, which is the `display` function, with the input `hi` and a brand new execution context.
--   aaa
