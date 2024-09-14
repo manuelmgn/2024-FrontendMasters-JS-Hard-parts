@@ -213,7 +213,7 @@ In this case, if we have had something like `console.log(counter)`, we would hav
 ### ES 5
 
 -   **Promises, Async & the Event Loop**
-    -   **Promises** - the most signficant ES6 feature
+    -   **Promises** - the most significant ES6 feature
     -   **Asynchronicity** - the feature that makes dynamic web applications possible
     -   **The event loop** - JavaScript’s triage
     -   Microtask queue, Callback queue and Web Browser features (APIs)
@@ -350,7 +350,7 @@ futureData.then(display)
 console.log('Me first!')
 ```
 
--   `fetch` _creates_ a **promise** object, which has propierties such as `value` or `on fulfilled`. The last one is hidden and it's an array that will contain what JS should do once the request is complete. For the time now, it still isn't.
+-   `fetch` _creates_ a **promise** object, which has properties such as `value` or `on fulfilled`. The last one is hidden and it's an array that will contain what JS should do once the request is complete. For the time now, it still isn't.
 -   `fetch` will make the browser use the network request future, that will request data to Twitter. Some time after data, Twitter will answer with a **response**.
 -   How will we know that request is completed? Through the method **`then`**. The function we put in `then` will be auto-run by JS and will be the value of `on fulfilled`.
 -   Then the execution context goes to `console.log...`. And will be printed 'Me first' in the console.
