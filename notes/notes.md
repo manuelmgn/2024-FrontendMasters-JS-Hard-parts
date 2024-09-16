@@ -355,3 +355,80 @@ console.log('Me first!')
 -   How will we know that request is completed? Through the method **`then`**. The function we put in `then` will be auto-run by JS and will be the value of `on fulfilled`.
 -   Then the execution context goes to `console.log...`. And will be printed 'Me first' in the console.
 -   Then Twitter will send us data back, let's say at 270 ms. The data is just 'hi'. 'hi' will be store in the `value` property of `futureData` and this is going to trigger `on fulfilled` property, which is the `display` function, with the input `hi` and a brand new execution context.
+
+> -   **`then` method and functionality to call on completion**
+>     -   Any code we want to run on the returned data must also be saved on the promise object.
+>     -   Added using `.then` method to the hidden property ‘onFulfilment’
+>     -   Promise objects will automatically trigger the attached function to run (with its input being the returned data)
+
+But we need to know how our promise-deferred functionality gets back into JavaScript to be run...
+
+```js
+function display(data) {
+    console.log(data)
+}
+function printHello() {
+    console.log('Hello')
+}
+function blockFor300ms() {
+    /* blocks js thread for 300ms */
+}
+
+setTimeout(printHello, 0)
+
+const futureData = fetch('https://twitter.com/will/tweets/1')
+futureData.then(display)
+
+blockFor300ms()
+console.log('Me first!')
+```
+
+What this code does?
+
+1. First three functions are saved in the global memory.
+2. We have this _façade_ function `setTimeout`. This is gonna send the duration (0 ms) to the timer feature of the web browser. It will add the function `printHello` to the **callback queue** on completion of the time, so it will add it now.
+3. Declaration of `futureData` and saved on the global memory.
+    1. This is a two-pronged façade function. It has a JS-related part and another related to the browser and its feature to make network requests:
+    2. JS part
+        1. `fetch` will do a network request through the browser
+        2. `fetch` creates an special object, a **promise**. This object will the value of `futureData` stored in the global memory.
+        3. Some of the properties of this promise will be `value` and `onfulfilled`, which is an array. As soon as `value` gets updated it will trigger the function stored in the `onfulfilled` array.
+    3. Browser part
+        1. Network request. We need the URL and its two parts: domain (`twitter.com`) and directory (`/will/1`).
+        2. We don't know when the request will be completed, but when it does, whatever get's back from it will be stored in `futureData.value`.
+    4. When value gets updated, the `then` method will automatically put the given function `display` into `onfulfilled`, it will go to the **MICROTASK QUEUE** (instead of the function queue) and after some time it will run it.
+4. We run `blockFor300ms`, creating a new execution context.
+    1. During this time, we'll receive a tweet from Twitter, 'hi'. When all global codes finish running, this will be stored on `futureData.value`.
+5. The console will print 'Me first!'.
+    1. After this the call stack will be empty. We'll have the 'callback queue' with the `printHello` function and the 'microtask queue' with the `display` function. So what will happen now?
+6. `display` function will be executed, as microtask queue goes first. 'hi' will be printed.
+7. `printHello' function will be executed at last, despite of being the first function in the code lines. It finally will jump into the call stack and 'Hello' will be printed out.
+
+[MDN Web APIS](https://developer.mozilla.org/en-US/docs/Web/API) (docs of what we're calling _façade_ functions).
+
+_What items go into the microtask queue and what items go into the callback queue?_ Any function that is attached to a promise object → micro-task. Any function that's passed in directly through a facade function that triggers a web browser feature (like the timer) → callback queue.
+
+-   **Promises**
+    -   Problems
+        -   99% of developers have no idea how they’re working under the hood.
+        -   Debugging becomes super-hard as a result.
+        -   Developers fail technical interviews.
+    -   Benefits
+        -   Cleaner readable style with pseudo-synchronous style code.
+        -   Nice error handling process. ↓
+
+There's another property inside the promise object, `on rejection`. It is common to suffer errors when working with network requests. This is also an array. So if we receive an error, the function that will be run will be the one stored on `on rejection`. We'll store it there with `futureData.catch()`.
+
+> **We have rules for the execution of our asynchronously delayed code**
+>
+> Hold promise-deferred functions in a microtask queue and callback function in a task queue (Callback queue) when the Web Browser Feature (API) finishes
+> Add the function to the Call stack (i.e. run the function) when:
+>
+> -   Call stack is empty & all global code run (Have the Event Loop check this condition)
+>
+> Prioritize functions in the microtask queue over the Callback queue
+
+**Promises, Web APIs, the Callback & Microtask Queues and Event loop enable**:
+- **Non-blocking applications**: This means we don’t have to wait in the single thread and don’t block further code from running
+- **However long it takes**: We cannot predict when our Browser feature’s work will finish so we let JS handle automatically running the function on its completion.
+- **Web applications**: Asynchronous JavaScript is the backbone of the modern web - letting us build fast ‘non-blocking’ applications
