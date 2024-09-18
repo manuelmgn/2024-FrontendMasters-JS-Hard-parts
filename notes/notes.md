@@ -1,23 +1,23 @@
 # Notes
 
-- [JavaScript Principles](#javascript-principles)
-  - [Call Stack](#call-stack)
-- [Functions and callbacks](#functions-and-callbacks)
-  - [Arrow functions](#arrow-functions)
-- [Closure](#closure)
-  - [Functions with memories](#functions-with-memories)
-  - [Multiple Closure Instances](#multiple-closure-instances)
-- [Asynchronous JS](#asynchronous-js)
-  - [ES 5](#es-5)
-  - [ES 6 - Promises](#es-6---promises)
-- [Classes \& Prototypes](#classes--prototypes)
-  - [Generating objects](#generating-objects)
-    - [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
-    - [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
-      - [Check if a property exists](#check-if-a-property-exists)
-      - [More on `this`](#more-on-this)
-    - [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
-    - [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
+-   [JavaScript Principles](#javascript-principles)
+    -   [Call Stack](#call-stack)
+-   [Functions and callbacks](#functions-and-callbacks)
+    -   [Arrow functions](#arrow-functions)
+-   [Closure](#closure)
+    -   [Functions with memories](#functions-with-memories)
+    -   [Multiple Closure Instances](#multiple-closure-instances)
+-   [Asynchronous JS](#asynchronous-js)
+    -   [ES 5](#es-5)
+    -   [ES 6 - Promises](#es-6---promises)
+-   [Classes \& Prototypes](#classes--prototypes)
+    -   [Generating objects](#generating-objects)
+        -   [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
+        -   [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
+            -   [Check if a property exists](#check-if-a-property-exists)
+            -   [More on `this`](#more-on-this)
+        -   [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
+        -   [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
 
 ## JavaScript Principles
 
@@ -611,7 +611,78 @@ So what if we want to confirm our user1 has the property score?
 
 ##### More on `this`
 
+We're literally just going to wrap up the `this.score++` in a function.
 
+```js
+function userCreator(name, score) {
+    const newUser = Object.create(userFunctionStore)
+    newUser.name = name
+    newUser.score = score
+    return newUser
+}
+const userFunctionStore = {
+    increment: function () {
+        function add1() {
+            this.score++
+        }
+        add1()
+    },
+}
+const user1 = userCreator('Will', 3)
+const user2 = userCreator('Tim', 5)
+user1.increment()
+```
+
+Let's focus on the execution context of `user1.increment()`. On its local memory we have `this` pointing to user1 and `add1`, pointing a function. We run `add1()` and generate a new execution context.
+
+Inside this new execution context we'll have `this.score++`. But here the value of `this` now is the global window object. In the old days, they solved this with `that=this`. And that solved the problem. But that's not elegant 🎩.
+
+Another option would be `add1.call(this)`.
+
+But nowadays there are other options, with **arrow functions** 🏹. Because our arrow function style of declaring or saving functions, it's this assignment is lexically scoped. That is to say, when we save the function, when we execute it, what this is set to is determined by where the function was saved. So if it was saved where `this` is `user1`, when we end up running it,the `this` inside will be this value from where the function was saved, which is `user1`.
+
+```js
+function userCreator(name, score) {
+    const newUser = Object.create(userFunctionStore)
+    newUser.name = name
+    newUser.score = score
+    return newUser
+}
+const userFunctionStore = {
+    increment: function () {
+        const add1 = () => {
+            this.score++
+        }
+        add1()
+    },
+}
+const user1 = userCreator('Will', 3)
+const user2 = userCreator('Tim', 5)
+user1.increment()
+```
+
+Let's focus again on the last line. `user1` is in global memory. The `increment` method is not there, but JS is going to look for it in the `__proto__` property linking to `userFunctionStore`.
+
+In the local memory of this execution context `this` is `user1` and `add1` is the function. Inside this, with `add1()` we open a new execution context.
+
+> [!note]
+> One simple rule: any function that's being run to the right hand side of the dot whatever the left hand side that's going to be the `this` assignment. But when there's no dot here (on add1), it defaults the global to the window. **Unless that function was defined as an arrow function**, in which case the `this` assignment will be `user1`. It's a statically or lexically `this` assignment, that is to say it's from the moment of definition that we set our `this` to `user1`.
+
+So now, inside that newer execution context, `this.score++` will be `user1.score++`.
+
+![this arrow function](<img/this arrow function.png>)
+
+🎁 Bonus: **What if we save `increment` as an arrow function?** If we ran it, would it's this assignment be determined by where it's being run to the right hand side of the dot (common function) or by where it was stored (arrow function), which was in global? → By where it was stored, and therefore the whole thing would fall apart. And now `this` will not be `User1`. → So **we don't want to use arrow functions for our include for our methods on objects**. But for the functions inside of them that we want to have point there this to the method in which they were defined.
+
+> Summarizing solution 2, using the prototype chain:
+>
+> -   Problems: No problems! It's beautiful. Maybe a little long-winded. It writes this every single time - but it's 6 words!
+>     ```js
+>     const newUser = Object.create(userFunctionStore);
+>     ...
+>     return newUser;
+>     ```
+> -   Super sophisticated but not standard
 
 #### Solution 3 - Introducing the keyword that automates the hard work: new
 
