@@ -1,23 +1,23 @@
 # Notes
 
-- [JavaScript Principles](#javascript-principles)
-  - [Call Stack](#call-stack)
-- [Functions and callbacks](#functions-and-callbacks)
-  - [Arrow functions](#arrow-functions)
-- [Closure](#closure)
-  - [Functions with memories](#functions-with-memories)
-  - [Multiple Closure Instances](#multiple-closure-instances)
-- [Asynchronous JS](#asynchronous-js)
-  - [ES 5](#es-5)
-  - [ES 6 - Promises](#es-6---promises)
-- [Classes \& Prototypes](#classes--prototypes)
-  - [Generating objects](#generating-objects)
-    - [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
-    - [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
-      - [Check if a property exists](#check-if-a-property-exists)
-      - [More on `this`](#more-on-this)
-    - [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
-    - [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
+-   [JavaScript Principles](#javascript-principles)
+    -   [Call Stack](#call-stack)
+-   [Functions and callbacks](#functions-and-callbacks)
+    -   [Arrow functions](#arrow-functions)
+-   [Closure](#closure)
+    -   [Functions with memories](#functions-with-memories)
+    -   [Multiple Closure Instances](#multiple-closure-instances)
+-   [Asynchronous JS](#asynchronous-js)
+    -   [ES 5](#es-5)
+    -   [ES 6 - Promises](#es-6---promises)
+-   [Classes \& Prototypes](#classes--prototypes)
+    -   [Generating objects](#generating-objects)
+        -   [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
+        -   [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
+            -   [Check if a property exists](#check-if-a-property-exists)
+            -   [More on `this`](#more-on-this)
+        -   [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
+        -   [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
 
 ## JavaScript Principles
 
@@ -756,7 +756,6 @@ user1.increment()
 
 ![solution 3 solved](<img/solution 3 solved.png>)
 
-
 > **Solution 3 - Introducing the keyword that automates the hard work: new**
 >
 > -   Benefits:
@@ -788,9 +787,11 @@ const user1 = new UserCreator('Eva', 9)
 user1.increment()
 ```
 
-
+As soon as you declare a class, we get an function object combo. The function bit would be the constructor,
 
 ![solution 4 vs 3](<img/solution 4 vs 3.png>)
+
+Nothing has changed. But it does look a lot more alike other languages. **But it's not doing what other languages do under the hood**.
 
 > Solution 4: The class ‘syntactic sugar’
 >
@@ -799,4 +800,3 @@ user1.increment()
 >     -   Feels more like style of other languages (e.g. Python)
 > -   Problems:
 >     -   99% of developers have no idea how it works and therefore fail interviews
->     -   But you will not be one of them!
