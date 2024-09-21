@@ -1,23 +1,23 @@
 # Notes
 
--   [JavaScript Principles](#javascript-principles)
-    -   [Call Stack](#call-stack)
--   [Functions and callbacks](#functions-and-callbacks)
-    -   [Arrow functions](#arrow-functions)
--   [Closure](#closure)
-    -   [Functions with memories](#functions-with-memories)
-    -   [Multiple Closure Instances](#multiple-closure-instances)
--   [Asynchronous JS](#asynchronous-js)
-    -   [ES 5](#es-5)
-    -   [ES 6 - Promises](#es-6---promises)
--   [Classes \& Prototypes](#classes--prototypes)
-    -   [Generating objects](#generating-objects)
-        -   [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
-        -   [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
-            -   [Check if a property exists](#check-if-a-property-exists)
-            -   [More on `this`](#more-on-this)
-        -   [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
-        -   [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
+- [JavaScript Principles](#javascript-principles)
+  - [Call Stack](#call-stack)
+- [Functions and callbacks](#functions-and-callbacks)
+  - [Arrow functions](#arrow-functions)
+- [Closure](#closure)
+  - [Functions with memories](#functions-with-memories)
+  - [Multiple Closure Instances](#multiple-closure-instances)
+- [Asynchronous JS](#asynchronous-js)
+  - [ES 5](#es-5)
+  - [ES 6 - Promises](#es-6---promises)
+- [Classes \& Prototypes](#classes--prototypes)
+  - [Generating objects](#generating-objects)
+    - [Solution 1. Generate objects using a function](#solution-1-generate-objects-using-a-function)
+    - [Solution 2: Using the prototype chain](#solution-2-using-the-prototype-chain)
+      - [Check if a property exists](#check-if-a-property-exists)
+      - [More on `this`](#more-on-this)
+    - [Solution 3 - Introducing the keyword that automates the hard work: new](#solution-3---introducing-the-keyword-that-automates-the-hard-work-new)
+    - [Solution 4: The class ‘syntactic sugar’](#solution-4-the-class-syntactic-sugar)
 
 ## JavaScript Principles
 
@@ -686,4 +686,117 @@ So now, inside that newer execution context, `this.score++` will be `user1.score
 
 #### Solution 3 - Introducing the keyword that automates the hard work: new
 
+So if we look back, we were creating the object manually using `object.create`, storing in a new user. Returning out that object manually, we wrote the code for that as well, creating a bond to use a function store. Wouldn't it be nice if we could automate that stuff? → There's a key word for this, **`new`**.
+
+When we call the function that returns an object with new in front we automate 2 things: 1) Create a new user object, 2) Return the new user object. But now we need to adjust how we write the body of `userCreator` - how can we 1) refer to the auto-created object? and 2) know where to put our single copies of functions?
+
+The answer to the first question is `this`. So now, instead of `newUser` we'll have `this`.
+
+> **A new rule for `this`**: If we use a `new` keyword, the automatically created object inside of that execution context is gonna label `this`.
+
+![new rule for this - board](<img/new rule for this - board.png>)
+
+![The new keyword automates a lot of our manual work](<img/The new keyword automates a lot of our manual work.png>)
+
+But our `functionStore`, our connection to `functionStore` that's done and gone now. So where are we going to? We need a big old object that we can be sure that with their help, with a new keyword, the object that gets automatically created, its proto property will link off to some object. ↓
+
+---
+
+Interlude. Functions are both objects and functions
+
+```js
+// We're storing the function in the memory
+function multiplyBy2(num) {
+    return num * 2
+}
+
+// We're creating a property, 'cause it's also an object.
+multiplyBy2.stored = 5
+
+multiplyBy2(3) // 6
+multiplyBy2.stored // 5
+
+// All functions in their object format automatically have the property prototype. It's default value is an empty object, `{}`.
+multiplyBy2.prototype // {}
+```
+
+If we use the function with a dot `.` we're accessing the object, but if we use `()` we'll use the function bit.
+
+We could use the fact that all functions have a default property `prototype` on their object version, (itself an object) - to replace our `functionStore` object.
+
+---
+
+If we go back to the previous code, now we'll see that `userCreator` is not just a function, is also an object, which will have the `prototype` property, which value will be an empty object.
+
+Things that we create with the `new` keyboard will have a bond to the `prototype` property of the function object. The shared functions will be stored there.
+
+```js
+function userCreator(name, score){
+ this.name = name;
+ this.score = score;
+}
+userCreator.prototype.increment = function(){ this.score++; };
+userCreator.prototype.login = function(){ console.log("login"); };
+const user1 = new userCreator(“Eva”, 9)
+user1.increment()
+```
+
+1. Creation of the label `userCreator`. It's a function object combo. Automatically it has the `prototype` property, which has an empty object inside.
+2. Storing a function (...) inside the increment label of the object which has `prototype` as its label inside the function-object.
+3. The same with `login`.
+4. Declaration of the constant `user1`. Initialize per now.
+5. Calling of the function `userCreator` and new execution context.
+    1. Name parameter => Argument 'Eva'
+    2. Score parameter => Argument 9
+    3. We also store `this` in the local memory, which by now is just an empty object. But this will have a hidden property `__proto__` which will be linked to the object part of the `userCreator` function to the `prototype` property, which is itself an object.
+    4. Creation of the new label `name` inside `this`. Its value will be the argument that was passed in, 'Eva'.
+    5. The same with score 9.
+    6. Finally the `new` keyword returns the `this` into `user1` in the global memory.
+6. `user1.increment()`. We're looking for `user1` in the global memory. Then for `increment` in `user1`, but it's not there, so JS will look for it through `__proto__` property → `userCreator.prototype.increment`.
+
+![solution 3 solved](<img/solution 3 solved.png>)
+
+
+> **Solution 3 - Introducing the keyword that automates the hard work: new**
+>
+> -   Benefits:
+>     -   Faster to write. Often used in practice in professional code.
+> -   Problems:
+>     -   95% of developers have no idea how it works and therefore fail interviews
+>     -   It's to easy to know quickly that the function `userCreator` needs the `new` keyword, and that's problematic in a team environment. To solve this, and to make people know that is not a common function, we have to upper case its first letter so we know it requires ‘new’ to work. But this is not the great solution.
+
 #### Solution 4: The class ‘syntactic sugar’
+
+> 🍬 **Syntactic sugar** means something that changes the way it looks, but doesn't change it under the hood.
+
+In solution 3 we declared independently the function that creates new users and its functions. But these two things are really connected. In other languages you can declare them together. ES2015 lets us do so too.
+
+```js
+class UserCreator {
+    constructor(name, score) {
+        this.name = name
+        this.score = score
+    }
+    increment() {
+        this.score++
+    }
+    login() {
+        console.log('login')
+    }
+}
+const user1 = new UserCreator('Eva', 9)
+user1.increment()
+```
+
+
+
+![solution 4 vs 3](<img/solution 4 vs 3.png>)
+
+> Solution 4: The class ‘syntactic sugar’
+>
+> -   Benefits:
+>     -   Emerging as a new standard
+>     -   Feels more like style of other languages (e.g. Python)
+> -   Problems:
+>     -   99% of developers have no idea how it works and therefore fail interviews
+>     -   But you will not be one of them!
